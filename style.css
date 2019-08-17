@@ -1,6 +1,11 @@
 html, body {
     margin: 0;
     padding: 0;
-    background-color: aquamarine;
+}
+
+#viz {
+    width: 80%;
+    margin: 0 auto;
+    background: #ddd;
 }
 
