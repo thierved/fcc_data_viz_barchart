@@ -1,44 +1,40 @@
-const parseDate = d3.timeParse("%Y-%m-%d");
+const parseDate = d3.timeParse("%Y-%d-%m");
 
 d3.json("data.json")
     .then(gdp => {
         
-        const margin = {left: 50, right: 30, bottom: 50, top: 20};
-        const width = 500 + margin.left + margin.right;
-        const height = 500 + margin.top + margin.bottom;
+        const margin = {left: 40, right: 20, bottom: 40, top: 20};
+        const width = 800 - margin.left - margin.right;
+        const height = 300 - margin.top - margin.bottom;
 
-        const extedData = gdp.data;
+        const data = gdp.data;
+        data.forEach(d => {
+            d[0] = parseDate(d[0])
+        });
         
+        // scaling the axis
         const xScale = d3.scaleTime()
-                .domain(d3.extent(extedData, d => parseDate(d[0])))
-                .range([0, width - margin.right])
+                .domain(d3.extent(data, d => d[0]))
+                .range([0, width])
 
         const yScale = d3.scaleLinear()
-                .domain(d3.extent(extedData, d => d[1]))
-                .range([height, 0]);
-                
-        const xAxis = d3.axisBottom(xScale);
-        const yAxis = d3.axisLeft(yScale);
+                .domain(d3.extent(data, d => d[1]))
+                .range([height, 0])
 
-        const svg = d3.select("#viz").append("svg")
-                .attr("width", width + margin.right)
-                .attr("height", height + margin.bottom);
+        // creating the bars
+        const svg = d3.select('#viz').append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
 
-        d3.select("svg")
-            .append("g")
-                .attr("transform", `translate(${margin.left}, ${margin.top})`)
-                .call(yAxis)
-        
-        d3.select("svg")
-            .append("g")
-                .attr("transform", `translate(${margin.left}, ${height + margin.top})`)
-                .call(xAxis);
-
-        svg.selectAll("rect")
-                .data(extedData)
+        const rect = svg.selectAll("rect")
+                .data(data)
                 .enter().append("rect")
-                        .attr("width", "2")
-                        .attr("height", d => yScale(d[1]))
-                        .attr("x", (d, i) => xScale(parseDate(d[0]))  + 50)
-                        .attr("y", d => height - yScale(d[1]) + margin.top)
-    });
+                    .attr("width", (width / data.length) + 5)
+                    .attr("height", d => height - yScale(d[1]) + margin.top)
+                    .attr("x", (_, i) => i * (width / data.length))
+                    .attr("y", d => yScale(d[1]))
+                    .attr("fill", "#f25")
+
+
+                    
+});
